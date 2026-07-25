@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Great Inversion — Founder Note · Airtribe Mumbai</title>
+
+<!-- ============================================================
+     FONTS — Fraunces (editorial serif display), Instrument Sans
+     (clean body), Caveat (hand-written ink annotations)
+     ============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   THEME — Paper & Ink with one crimson accent.
+   Change these variables to retint the whole deck.
+   ============================================================ */
+:root {
+    --paper:        #f3efe6;   /* cream paper */
+    --paper-deep:   #eae4d6;   /* slightly darker paper for panels */
+    --ink:          #191714;   /* near-black ink */
+    --ink-soft:     #52493d;   /* faded ink for secondary text */
+    --crimson:      #6835FB;   /* Airtribe Purple (brand primary) */
+    --crimson-soft: rgba(104, 53, 251, 0.12);
+
+    --font-display: 'Fraunces', serif;
+    --font-body:    'Instrument Sans', sans-serif;
+    --font-hand:    'Caveat', cursive;
+
+    /* Typography — all clamp()ed */
+    --title-size:    clamp(2.2rem, 7vw, 5.5rem);
+    --h2-size:       clamp(1.4rem, 3.6vw, 2.7rem);
+    --h3-size:       clamp(1rem, 2.5vw, 1.75rem);
+    --body-size:     clamp(0.85rem, 1.5vw, 1.15rem);
+    --small-size:    clamp(0.68rem, 1vw, 0.875rem);
+    --hand-size:     clamp(1rem, 2.2vw, 1.6rem);
+
+    /* Spacing */
+    --slide-padding: clamp(1rem, 4vw, 4rem);
+    --content-gap:   clamp(0.5rem, 2vw, 2rem);
+    --element-gap:   clamp(0.25rem, 1vw, 1rem);
+
+    /* Motion */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-normal: 0.7s;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ===========================================
+   VIEWPORT FITTING: MANDATORY BASE STYLES
+   =========================================== */
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+.slide {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.slide-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-height: 100%;
+    overflow: hidden;
+    padding: var(--slide-padding);
+}
+.card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+.feature-list, .bullet-list { gap: clamp(0.4rem, 1vh, 1rem); }
+.feature-list li, .bullet-list li { font-size: var(--body-size); line-height: 1.4; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: clamp(0.5rem, 1.5vw, 1rem); }
+img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fit: contain; }
+
+@media (max-height: 700px) {
+    :root {
+        --slide-padding: clamp(0.75rem, 3vw, 2rem);
+        --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+        --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+        --h2-size: clamp(1rem, 3vw, 1.75rem);
+    }
+}
+@media (max-height: 600px) {
+    :root {
+        --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+        --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+        --title-size: clamp(1.1rem, 4vw, 2rem);
+        --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+    }
+    .nav-dots, .keyboard-hint, .decorative { display: none; }
+}
+@media (max-height: 500px) {
+    :root {
+        --slide-padding: clamp(0.4rem, 2vw, 1rem);
+        --title-size: clamp(1rem, 3.5vw, 1.5rem);
+        --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+        --body-size: clamp(0.65rem, 1vw, 0.85rem);
+    }
+}
+@media (max-width: 600px) {
+    :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
+    .grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+    html { scroll-behavior: auto; }
+}
+
+/* ============================================================
+   PAPER TEXTURE — every slide gets grain via an SVG noise layer
+   ============================================================ */
+body { background: var(--paper); font-family: var(--font-body); color: var(--ink); }
+.slide { background: var(--paper); }
+.slide::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+}
+.slide-content { position: relative; z-index: 2; }
+
+/* ============================================================
+   TYPE SYSTEM
+   ============================================================ */
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; }
+h1 { font-size: var(--title-size); line-height: 1.02; }
+h2 { font-size: var(--h2-size); line-height: 1.1; }
+p  { font-size: var(--body-size); line-height: 1.55; color: var(--ink-soft); }
+.hand { font-family: var(--font-hand); font-size: var(--hand-size); color: var(--crimson); line-height: 1.2; }
+.kicker {
+    font-family: var(--font-body);
+    font-size: var(--small-size);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--crimson);
+    font-weight: 600;
+    margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+}
+.ink-strong { color: var(--ink); font-weight: 600; }
+em.crimson { color: var(--crimson); font-style: normal; }
+
+/* Hand-drawn underline: an SVG stroke that draws itself in */
+.underline-wrap { position: relative; display: inline-block; }
+.underline-wrap svg {
+    position: absolute; left: -2%; bottom: calc(-1 * clamp(4px, 1vh, 10px));
+    width: 104%; height: clamp(6px, 1.6vh, 14px); overflow: visible;
+}
+.underline-wrap svg path {
+    stroke: var(--crimson); stroke-width: 4; fill: none; stroke-linecap: round;
+    stroke-dasharray: 600; stroke-dashoffset: 600;
+}
+.slide.visible .underline-wrap svg path { animation: drawStroke 1s var(--ease-out-expo) 0.7s forwards; }
+@keyframes drawStroke { to { stroke-dashoffset: 0; } }
+
+/* Crimson spark — the mascot's companion, twinkles gently */
+.spark {
+    display: inline-block; color: var(--crimson);
+    animation: twinkle 2.6s ease-in-out infinite;
+    transform-origin: center;
+}
+.spark.s2 { animation-delay: 0.9s; }
+.spark.s3 { animation-delay: 1.7s; }
+@keyframes twinkle {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    50% { transform: scale(1.25) rotate(18deg); opacity: 0.75; }
+}
+
+/* Mascot images: multiply blend melts their cream bg into the paper */
+.mascot { mix-blend-mode: multiply; }
+.mascot.bob { animation: bob 5s ease-in-out infinite; }
+@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+/* Sketchy ink panel — uneven border radius reads as hand-drawn */
+.ink-panel {
+    border: 2.5px solid var(--ink);
+    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    padding: clamp(0.7rem, 2vw, 1.6rem);
+    background: var(--paper);
+    box-shadow: 4px 4px 0 var(--crimson-soft);
+}
+
+/* Reveal animations */
+.reveal {
+    opacity: 0; transform: translateY(26px);
+    transition: opacity var(--duration-normal) var(--ease-out-expo),
+                transform var(--duration-normal) var(--ease-out-expo);
+}
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+.reveal:nth-child(1) { transition-delay: 0.05s; }
+.reveal:nth-child(2) { transition-delay: 0.18s; }
+.reveal:nth-child(3) { transition-delay: 0.32s; }
+.reveal:nth-child(4) { transition-delay: 0.46s; }
+.reveal:nth-child(5) { transition-delay: 0.6s; }
+.reveal:nth-child(6) { transition-delay: 0.74s; }
+.d1 { transition-delay: 0.1s !important; }
+.d2 { transition-delay: 0.3s !important; }
+.d3 { transition-delay: 0.5s !important; }
+.d4 { transition-delay: 0.7s !important; }
+.d5 { transition-delay: 0.9s !important; }
+
+/* ============================================================
+   CHROME — progress bar, nav dots, hint
+   ============================================================ */
+.progress-bar {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0;
+    background: var(--crimson); z-index: 9000; transition: width 0.2s ease;
+}
+.nav-dots {
+    position: fixed; right: clamp(8px, 1.5vw, 22px); top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 9px; z-index: 9000;
+}
+.nav-dots button {
+    width: 9px; height: 9px; border-radius: 50%;
+    border: 1.6px solid var(--ink); background: transparent;
+    cursor: pointer; padding: 0; transition: all 0.25s ease;
+}
+.nav-dots button.active { background: var(--crimson); border-color: var(--crimson); transform: scale(1.35); }
+.keyboard-hint {
+    position: fixed; bottom: 12px; right: 16px; z-index: 9000;
+    font-size: var(--small-size); color: var(--ink-soft); opacity: 0.55;
+    font-family: var(--font-body);
+}
+
+/* Airtribe glyph — fixed top-right, present on every slide */
+.logo-mark {
+    position: fixed; top: clamp(10px, 2vh, 22px); right: clamp(12px, 2vw, 26px);
+    height: clamp(20px, 3.5vh, 34px); width: auto; z-index: 9000;
+    opacity: 0.92;
+}
+@media (max-height: 600px) { .logo-mark { display: none; } }
+
+/* Slide footer tag (bottom-left corner label) */
+.corner-tag {
+    position: absolute; bottom: clamp(8px, 2vh, 20px); left: var(--slide-padding);
+    font-size: var(--small-size); color: var(--ink-soft); opacity: 0.6;
+    z-index: 3; letter-spacing: 0.1em; text-transform: uppercase;
+}
+
+/* ============================================================
+   SLIDE 1 — TITLE
+   ============================================================ */
+.title-slide .slide-content { flex-direction: row; align-items: center; gap: var(--content-gap); justify-content: center; }
+.title-slide .title-text { max-width: min(58vw, 640px); }
+.title-slide .mascot-col { display: flex; align-items: flex-end; justify-content: center; position: relative; }
+.title-slide .mascot-col img { max-height: min(52vh, 430px); }
+.title-slide .mascot-col .spark-big {
+    position: absolute; top: 4%; right: -4%;
+    font-size: clamp(1.6rem, 4vw, 3rem);
+}
+.title-slide .hand { margin-top: clamp(0.5rem, 1.5vh, 1rem); }
+@media (max-width: 700px) {
+    .title-slide .slide-content { flex-direction: column; text-align: center; }
+    .title-slide .mascot-col img { max-height: 30vh; }
+    .title-slide .title-text { max-width: 92vw; }
+}
+
+/* ============================================================
+   SLIDE 2 — POLL (cold open)
+   ============================================================ */
+.poll-slide .slide-content { align-items: center; text-align: center; }
+.poll-hand {
+    font-size: clamp(2.6rem, 8vw, 5.5rem);
+    animation: raiseHand 2.2s ease-in-out infinite;
+    display: inline-block; transform-origin: bottom center;
+    filter: grayscale(0.5) contrast(1.1);
+}
+@keyframes raiseHand {
+    0%, 100% { transform: rotate(0deg) translateY(0); }
+    40% { transform: rotate(-10deg) translateY(-12px); }
+    60% { transform: rotate(6deg) translateY(-10px); }
+}
+
+/* ============================================================
+   QUOTE SLIDE
+   ============================================================ */
+.quote-slide .slide-content { align-items: center; text-align: center; }
+.quote-mark {
+    font-family: var(--font-display); font-size: clamp(3rem, 9vw, 7rem);
+    color: var(--crimson); line-height: 0.5; height: clamp(1.4rem, 4vw, 3rem);
+}
+blockquote {
+    font-family: var(--font-display); font-style: italic; font-weight: 500;
+    font-size: clamp(1.3rem, 3.4vw, 2.6rem); line-height: 1.25;
+    max-width: min(88vw, 900px); color: var(--ink);
+}
+.attribution { margin-top: var(--content-gap); font-size: var(--body-size); color: var(--ink-soft); }
+.attribution .ink-strong { color: var(--ink); }
+
+/* ============================================================
+   LADDER (inversion slide) — hand-drawn CSS ladder that flips
+   ============================================================ */
+.ladder-slide .slide-content { flex-direction: row; align-items: center; justify-content: center; gap: clamp(0.5rem, 1.5vw, 1.5rem); }
+.ladder {
+    position: relative;
+    width: clamp(80px, 12vw, 130px);
+    height: min(56vh, 420px);
+    flex-shrink: 0;
+    transition: transform 1.2s var(--ease-out-expo);
+    /* Rung labels are absolutely positioned outside the ladder box
+       (right side normally, left side once flipped) — these margins
+       reserve room for them so they never collide with the text column */
+    margin: 0 clamp(6rem, 9vw, 9.5rem);
+}
+.ladder .rail {
+    position: absolute; top: 0; bottom: 0; width: 3px;
+    background: var(--ink); border-radius: 3px;
+}
+.ladder .rail.left  { left: 6%; transform: rotate(1.2deg); }
+.ladder .rail.right { right: 6%; transform: rotate(-1deg); }
+.ladder .rung {
+    position: absolute; left: 8%; right: 8%; height: 3px;
+    background: var(--ink); border-radius: 3px;
+    opacity: 0; transition: opacity 0.4s ease;
+}
+.slide.visible .ladder .rung { opacity: 1; }
+.ladder .rung span {
+    position: absolute; left: 108%; top: 50%; transform: translateY(-50%);
+    font-family: var(--font-hand); font-size: clamp(0.8rem, 1.6vw, 1.15rem);
+    color: var(--ink-soft); white-space: nowrap;
+}
+.ladder.flipped { transform: rotate(180deg); }
+.ladder.flipped .rung span { transform: translateY(50%) rotate(180deg); }
+.ladder-text { max-width: min(46vw, 520px); }
+@media (max-width: 700px) {
+    .ladder-slide .slide-content { flex-direction: column; }
+    .ladder { height: 30vh; }
+    .ladder-text { max-width: 92vw; }
+}
+
+/* ============================================================
+   ROLE CARDS
+   ============================================================ */
+.roles-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(0.6rem, 2vw, 1.4rem); margin-top: var(--content-gap); max-width: min(92vw, 1050px); }
+.role-card h3 { font-size: var(--h3-size); margin-bottom: clamp(0.2rem, 0.8vh, 0.5rem); }
+.role-card .hand { font-size: clamp(0.9rem, 1.7vw, 1.2rem); display: block; margin-bottom: clamp(0.2rem, 0.8vh, 0.5rem); }
+.role-card p { font-size: clamp(0.75rem, 1.3vw, 1rem); }
+@media (max-width: 760px) { .roles-grid { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   PAIR-SHARE TIMER
+   ============================================================ */
+.timer-slide .slide-content { align-items: center; text-align: center; }
+.timer-ring { position: relative; width: clamp(120px, 22vh, 200px); height: clamp(120px, 22vh, 200px); margin-top: var(--content-gap); cursor: pointer; }
+.timer-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.timer-ring circle { fill: none; stroke-width: 7; }
+.timer-ring .track { stroke: var(--paper-deep); }
+.timer-ring .arc { stroke: var(--crimson); stroke-linecap: round; }
+.timer-ring .timer-label {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: clamp(1.4rem, 4vh, 2.4rem); font-weight: 600;
+}
+.timer-ring .timer-label small { font-family: var(--font-hand); font-size: clamp(0.8rem, 1.8vh, 1.1rem); color: var(--crimson); }
+
+/* ============================================================
+   INDIA TWO BARRIERS
+   ============================================================ */
+.barriers { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(0.8rem, 2.5vw, 2rem); margin-top: var(--content-gap); max-width: min(92vw, 950px); }
+.barrier-num {
+    font-family: var(--font-display); font-size: clamp(1.8rem, 5vw, 3.6rem);
+    color: var(--crimson); font-weight: 700; line-height: 1;
+}
+@media (max-width: 700px) { .barriers { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   THE AIRTRIBE WAY — big stats + offering chips
+   ============================================================ */
+.way-stats { display: flex; gap: clamp(2rem, 6vw, 5rem); justify-content: center; margin-top: clamp(0.4rem, 1.5vh, 1rem); }
+.way-stat .num {
+    font-family: var(--font-display); font-weight: 700; line-height: 1;
+    font-size: clamp(2rem, 5.5vw, 4.2rem); color: var(--crimson);
+}
+.way-stat .lbl { font-size: var(--body-size); color: var(--ink-soft); margin-top: clamp(0.1rem, 0.5vh, 0.35rem); }
+.way-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: clamp(0.5rem, 1.5vw, 1.1rem);
+    margin-top: var(--content-gap); max-width: min(94vw, 1100px);
+}
+.way-card { padding: clamp(0.55rem, 1.5vw, 1.1rem); }
+.way-card .hand { font-size: clamp(0.85rem, 1.6vw, 1.15rem); display: block; }
+.way-card p { font-size: clamp(0.72rem, 1.2vw, 0.95rem); }
+@media (max-width: 900px) { .way-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .way-grid { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   CLOSING
+   ============================================================ */
+.close-slide .slide-content { flex-direction: row; align-items: center; justify-content: center; gap: var(--content-gap); }
+.close-slide .mascot-col img { max-height: min(46vh, 380px); }
+.close-slide .close-text { max-width: min(55vw, 620px); }
+.close-slide .big-line {
+    font-family: var(--font-display); font-weight: 650;
+    font-size: clamp(1.3rem, 3.2vw, 2.4rem); line-height: 1.15; color: var(--ink);
+}
+@media (max-width: 700px) {
+    .close-slide .slide-content { flex-direction: column; text-align: center; }
+    .close-slide .mascot-col img { max-height: 26vh; }
+    .close-slide .close-text { max-width: 92vw; }
+}
+
+/* ============================================================
+   INLINE EDITING (press E, or hover top-left corner)
+   ============================================================ */
+.edit-hotzone { position: fixed; top: 0; left: 0; width: 80px; height: 80px; z-index: 10000; cursor: pointer; }
+.edit-toggle {
+    position: fixed; top: 14px; left: 14px; z-index: 10001;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    background: var(--paper); border: 2px solid var(--ink); border-radius: 8px;
+    font-size: 1rem; padding: 6px 10px; cursor: pointer; font-family: var(--font-body);
+}
+.edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+.edit-toggle.active { background: var(--crimson); color: #fff; border-color: var(--crimson); }
+body.editing [contenteditable="true"] { outline: 1.5px dashed var(--crimson); outline-offset: 3px; border-radius: 2px; }
+.edit-note {
+    position: fixed; bottom: 12px; left: 16px; z-index: 10001;
+    font-size: var(--small-size); background: var(--ink); color: var(--paper);
+    padding: 6px 12px; border-radius: 6px; display: none;
+}
+body.editing .edit-note { display: block; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar"></div>
+<nav class="nav-dots" aria-label="Slide navigation"></nav>
+<div class="keyboard-hint">← → to navigate</div>
+<img class="logo-mark" src="assets/airtribe-mark.png" alt="Airtribe">
+
+<div class="edit-hotzone"></div>
+<button class="edit-toggle" id="editToggle" title="Edit mode (E)">✏️ Edit</button>
+<div class="edit-note">Editing — click any text · Ctrl/Cmd+S to download edited copy</div>
+
+<!-- ============================================================
+     SLIDE 1 · TITLE — mascot waves the room in
+     ============================================================ -->
+<section class="slide title-slide">
+    <div class="slide-content">
+        <div class="title-text">
+            <div class="kicker reveal">Founder Note · Airtribe · Mumbai</div>
+            <h1 class="reveal">The Great <span class="underline-wrap">Inversion<svg viewBox="0 0 300 12" preserveAspectRatio="none"><path d="M2 8 Q 75 2, 150 7 T 298 5"/></svg></span></h1>
+            <p class="reveal" style="margin-top: clamp(0.6rem, 2vh, 1.2rem);">Why the next five years belong to the fastest learners — not the most experienced.</p>
+            <div class="hand reveal">30 minutes. Interruptions welcome. <span class="spark">✦</span></div>
+        </div>
+        <div class="mascot-col reveal">
+            <img class="mascot bob" src="assets/nav-wave-cut.png" alt="Hand-drawn mascot waving hello">
+            <span class="spark-big spark">✦</span>
+        </div>
+    </div>
+    <div class="corner-tag">airtribe · founder note</div>
+</section>
+
+<!-- ============================================================
+     SLIDE 2 · COLD OPEN POLL — hands up, first 60 seconds
+     ============================================================ -->
+<section class="slide poll-slide">
+    <div class="slide-content">
+        <div class="poll-hand reveal">✋</div>
+        <h2 class="reveal" style="margin-top: var(--element-gap);">Raise your hand if AI did <em class="crimson">real work</em> for you this week.</h2>
+        <p class="reveal" style="margin-top: var(--element-gap); max-width: min(88vw, 700px);">Keep it up if it did something you <span class="ink-strong">couldn't have done yourself</span> a year ago.</p>
+        <div class="hand reveal">look around the room. remember this. <span class="spark s2">✦</span></div>
+    </div>
+    <div class="corner-tag">01 · the room</div>
+</section>
+
+<!-- ============================================================
+     SLIDE 3 · KARPATHY + THE REFRAME (merged quote & skill-issue)
+     ============================================================ -->
+<section class="slide quote-slide">
+    <div class="slide-content">
+        <div class="quote-mark reveal">"</div>
+        <blockquote class="reveal">I do not think I have typed a line of code since December.</blockquote>
+        <div class="attribution reveal">
+            <span class="ink-strong">Andrej Karpathy</span> — co-founder of OpenAI, the man who taught a generation to code
+        </div>
+        <p class="reveal" style="margin-top: var(--content-gap); max-width: min(88vw, 720px);">When AI fails you, it's a <em class="crimson">skill issue</em> — not a capability ceiling. The ceiling on your output is now <span class="ink-strong">your skill</span>. And skill is learnable.</p>
+        <div class="hand reveal">he didn't stop working. he stopped <u>typing</u>. <span class="spark">✦</span></div>
+    </div>
+    <div class="corner-tag">02 · the reframe</div>
+</section>
+
+<!-- ============================================================
+     SLIDE 4 · THE INVERSION — ladder flips upside down
+     ============================================================ -->
+<section class="slide ladder-slide" id="inversionSlide">
+    <div class="slide-content">
+        <div class="ladder" id="flipLadder">
+            <div class="rail left"></div>
+            <div class="rail right"></div>
+            <div class="rung" style="bottom: 12%;"><span>learning velocity</span></div>
+            <div class="rung" style="bottom: 32%;"><span>AI fluency</span></div>
+            <div class="rung" style="bottom: 52%;"><span>taste & judgment</span></div>
+            <div class="rung" style="bottom: 72%;"><span>distribution</span></div>
+            <div class="rung" style="bottom: 90%;"><span>years served</span></div>
+        </div>
+        <div class="ladder-text">
+            <div class="kicker reveal">The inversion</div>
+            <h2 class="reveal">A junior with AI fluency now outruns a senior optimized for a world that's <em class="crimson">gone</em>.</h2>
+            <p class="reveal" style="margin-top: var(--element-gap);"><span class="ink-strong">Learning velocity beats accumulated experience.</span> You're no longer the worker — you're the <span class="ink-strong">manager of agents</span>, and the moat is how well you direct them.</p>
+            <div class="hand reveal">the ladder didn't disappear. it flipped. <span class="spark s3">✦</span></div>
+        </div>
+    </div>
+    <div class="corner-tag">03 · the inversion</div>
+</section>
+
+<!-- ============================================================
+     SLIDE 5 · WHAT IT MEANS FOR YOU — by role (registration data)
+     ============================================================ -->
+<section class="slide">
+    <div class="slide-content" style="align-items: center; text-align: center;">
+        <h2 class="reveal">What this means for <em class="crimson">you</em></h2>
+        <div class="hand reveal">I checked the registrations: this room is ~40% engineers, ~18% PMs & designers, ~20% founders. <span class="spark">✦</span></div>
+        <div class="roles-grid">
+            <div class="ink-panel role-card reveal d1">
+                <h3>Engineers</h3>
+                <span class="hand">you have a head start</span>
+                <p>Directing agents well — precise, composable, verifiable instructions — <span class="ink-strong">is programming</span>. Don't waste the advantage.</p>
+            </div>
+            <div class="ink-panel role-card reveal d2">
+                <h3>PMs & Designers</h3>
+                <span class="hand">taste is the scarce skill</span>
+                <p>Execution is being automated. Judgment, taste, and knowing <span class="ink-strong">what's worth building</span> are what's left — and what's rare.</p>
+            </div>
+            <div class="ink-panel role-card reveal d3">
+                <h3>Founders</h3>
+                <span class="hand">one person = one team</span>
+                <p>One person + agents is becoming a full productive team. <span class="ink-strong">Solo ownership, end-to-end</span>, is the new org design.</p>
+            </div>
+        </div>
+    </div>
+    <div class="corner-tag">04 · by role</div>
+</section>
+
+<!-- ============================================================
+     SLIDE 6 · PAIR-SHARE — 90 second timer (click to start)
+     ============================================================ -->
+<section class="slide timer-slide">
+    <div class="slide-content">
+        <div class="kicker reveal">Turn to the person next to you</div>
+        <h2 class="reveal" style="max-width: min(90vw, 800px);">What's one skill you're paid for today that AI already does at <em class="crimson">80%</em>?</h2>
+        <div class="timer-ring reveal" id="timerRing" title="Click to start 90s timer">
+            <svg viewBox="0 0 120 120">
+                <circle class="track" cx="60" cy="60" r="52"></circle>
+                <circle class="arc" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="0" id="timerArc"></circle>
+            </svg>
+            <div class="timer-label"><span id="timerText">90</span><small>click to start</small></div>
+        </div>
+        <div class="hand reveal">be honest. that's the whole point.</div>
+    </div>
+    <div class="corner-tag">05 · pair share</div>
+</section>
+
+<!-- ============================================================
+     SLIDE 7 · INDIA'S TWO BARRIERS + the flip side (merged)
+     ============================================================ -->
+<section class="slide">
+    <div class="slide-content" style="align-items: center; text-align: center;">
+        <div class="kicker reveal">Now the uncomfortable part</div>
+        <h2 class="reveal">India could <em class="crimson">fall behind</em> in this shift.<br>Two barriers, not one.</h2>
+        <div class="barriers">
+            <div class="ink-panel reveal d2">
+                <div class="barrier-num">₹</div>
+                <h3 style="font-size: var(--h3-size); margin: clamp(0.2rem,1vh,0.5rem) 0;">Affordability</h3>
+                <p style="font-size: clamp(0.75rem, 1.3vw, 1rem);">Frontier AI costs $100–200 a month. Adoption tracks GDP per capita — most of India is priced out of the leverage.</p>
+            </div>
+            <div class="ink-panel reveal d3">
+                <div class="barrier-num">?</div>
+                <h3 style="font-size: var(--h3-size); margin: clamp(0.2rem,1vh,0.5rem) 0;">Trust</h3>
+                <p style="font-size: clamp(0.75rem, 1.3vw, 1rem);">We're a trust-deficit society. Agent adoption won't follow the Silicon Valley playbook here — trust is built in person.</p>
+            </div>
+        </div>
+        <div class="hand reveal d4" style="margin-top: var(--content-gap);">both barriers break the same way: <u>together</u>. India closes this gap in community. <span class="spark">✦</span></div>
+    </div>
+    <div class="corner-tag">06 · india's challenge</div>
+</section>
+
+<!-- ============================================================
+     SLIDE 8 · THE AIRTRIBE WAY — stats + how we do it
+     ============================================================ -->
+<section class="slide">
+    <div class="slide-content" style="align-items: center; text-align: center;">
+        <div class="kicker reveal">Learning as a team sport</div>
+        <h2 class="reveal">The <span class="underline-wrap">Airtribe<svg viewBox="0 0 300 12" preserveAspectRatio="none"><path d="M2 8 Q 75 2, 150 7 T 298 5"/></svg></span> Way</h2>
+        <div class="way-stats reveal">
+            <div class="way-stat"><div class="num">30K+</div><div class="lbl">learners</div></div>
+            <div class="way-stat"><div class="num">200+</div><div class="lbl">experts</div></div>
+        </div>
+        <div class="way-grid">
+            <div class="ink-panel way-card reveal d1">
+                <span class="hand">expert-led programs</span>
+                <p>Taught by practitioners doing the work — <span class="ink-strong">to boost your career</span>.</p>
+            </div>
+            <div class="ink-panel way-card reveal d2">
+                <span class="hand">live masterclasses</span>
+                <p>To <span class="ink-strong">continuously upskill</span> — because the loop never stops.</p>
+            </div>
+            <div class="ink-panel way-card reveal d3">
+                <span class="hand">active community</span>
+                <p>People six months ahead of you, <span class="ink-strong">helping you grow</span>.</p>
+            </div>
+            <div class="ink-panel way-card reveal d4">
+                <span class="hand">handpicked resources</span>
+                <p>Curated resources and exercises — <span class="ink-strong">signal, not noise</span>.</p>
+            </div>
+        </div>
+        <div class="hand reveal d5" style="margin-top: var(--content-gap);">our vision: India's most <u>trusted</u> platform for becoming an AI-native builder. <span class="spark">✦</span></div>
+    </div>
+    <div class="corner-tag">07 · the airtribe way</div>
+</section>
+
+<!-- ============================================================
+     SLIDE 9 · CLOSING — quotable + find your tribe + airtribe
+     ============================================================ -->
+<section class="slide close-slide">
+    <div class="slide-content">
+        <div class="mascot-col reveal">
+            <img class="mascot bob" src="assets/nav-wave-cut.png" alt="Mascot waving goodbye">
+        </div>
+        <div class="close-text">
+            <div class="big-line reveal">AI won't take your job. Someone with a <em class="crimson">faster learning loop</em> will.</div>
+            <h1 class="reveal" style="font-size: clamp(1.8rem, 5vw, 3.8rem); margin-top: var(--content-gap);">Find your <span class="underline-wrap">tribe<svg viewBox="0 0 300 12" preserveAspectRatio="none"><path d="M2 7 Q 75 2, 150 8 T 298 4"/></svg></span>.</h1>
+            <p class="reveal" style="margin-top: var(--element-gap);">Nobody re-skills alone. Before you leave tonight: <span class="ink-strong">introduce yourself to two people you haven't met.</span> That's the whole assignment.</p>
+            <div class="hand reveal" style="margin-top: var(--element-gap);">airtribe · mumbai · with love <span class="spark">✦</span> <span class="spark s2">✦</span> <span class="spark s3">✦</span></div>
+        </div>
+    </div>
+    <div class="corner-tag">thank you</div>
+</section>
+
+<script>
+/* ============================================================
+   SLIDE PRESENTATION CONTROLLER
+   Keyboard, touch, progress bar, nav dots, visibility animations
+   ============================================================ */
+class SlidePresentation {
+    constructor() {
+        this.slides = [...document.querySelectorAll('.slide')];
+        this.current = 0;
+        this.setupObserver();
+        this.setupKeyboard();
+        this.setupTouch();
+        this.setupDots();
+        window.addEventListener('scroll', () => this.onScroll(), { passive: true });
+    }
+
+    setupObserver() {
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    this.current = this.slides.indexOf(e.target);
+                    this.updateDots();
+                    /* The inversion slide flips its ladder shortly after arriving */
+                    if (e.target.id === 'inversionSlide') {
+                        setTimeout(() => document.getElementById('flipLadder').classList.add('flipped'), 1100);
+                    }
+                }
+            });
+        }, { threshold: 0.55 });
+        this.slides.forEach(s => obs.observe(s));
+    }
+
+    go(i) {
+        const target = Math.max(0, Math.min(this.slides.length - 1, i));
+        this.slides[target].scrollIntoView({ behavior: 'smooth' });
+    }
+
+    setupKeyboard() {
+        document.addEventListener('keydown', (e) => {
+            if (e.target.getAttribute && e.target.getAttribute('contenteditable')) return;
+            if (['ArrowDown', 'ArrowRight', ' ', 'PageDown'].includes(e.key)) { e.preventDefault(); this.go(this.current + 1); }
+            if (['ArrowUp', 'ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); this.go(this.current - 1); }
+            if (e.key === 'Home') { e.preventDefault(); this.go(0); }
+            if (e.key === 'End') { e.preventDefault(); this.go(this.slides.length - 1); }
+        });
+    }
+
+    setupTouch() {
+        let startY = null;
+        document.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            if (startY === null) return;
+            const dy = startY - e.changedTouches[0].clientY;
+            if (Math.abs(dy) > 60) this.go(this.current + (dy > 0 ? 1 : -1));
+            startY = null;
+        }, { passive: true });
+    }
+
+    setupDots() {
+        const nav = document.querySelector('.nav-dots');
+        this.slides.forEach((_, i) => {
+            const b = document.createElement('button');
+            b.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+            b.addEventListener('click', () => this.go(i));
+            nav.appendChild(b);
+        });
+        this.updateDots();
+    }
+
+    updateDots() {
+        document.querySelectorAll('.nav-dots button').forEach((b, i) =>
+            b.classList.toggle('active', i === this.current));
+    }
+
+    onScroll() {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+        document.querySelector('.progress-bar').style.width = pct + '%';
+    }
+}
+const deck = new SlidePresentation();
+
+/* ============================================================
+   90-SECOND PAIR-SHARE TIMER (click ring to start / reset)
+   ============================================================ */
+(function () {
+    const ring = document.getElementById('timerRing');
+    const arc = document.getElementById('timerArc');
+    const text = document.getElementById('timerText');
+    const CIRC = 326.7;
+    const TOTAL = 90;
+    let interval = null;
+
+    ring.addEventListener('click', () => {
+        clearInterval(interval);
+        let left = TOTAL;
+        text.textContent = left;
+        ring.querySelector('small').textContent = 'talking…';
+        interval = setInterval(() => {
+            left--;
+            text.textContent = Math.max(0, left);
+            arc.style.strokeDashoffset = CIRC * (1 - left / TOTAL);
+            if (left <= 0) {
+                clearInterval(interval);
+                ring.querySelector('small').textContent = 'time! click to reset';
+                arc.style.strokeDashoffset = 0;
+                text.textContent = TOTAL;
+            }
+        }, 1000);
+    });
+})();
+
+/* ============================================================
+   INLINE EDITOR — press E or hover top-left. Ctrl/Cmd+S downloads
+   the edited HTML. Changes also persist to localStorage.
+   ============================================================ */
+const editor = {
+    isActive: false,
+    KEY: 'founder-note-mumbai-v2-edits',
+    editables: 'h1, h2, h3, p, blockquote, .hand, .kicker, .attribution, .big-line, .corner-tag',
+
+    toggleEditMode() {
+        this.isActive = !this.isActive;
+        document.body.classList.toggle('editing', this.isActive);
+        document.getElementById('editToggle').classList.toggle('active', this.isActive);
+        document.querySelectorAll(this.editables).forEach(el =>
+            el.setAttribute('contenteditable', this.isActive ? 'true' : 'false'));
+        if (!this.isActive) this.save();
+    },
+
+    save() {
+        const data = [...document.querySelectorAll(this.editables)].map(el => el.innerHTML);
+        try { localStorage.setItem(this.KEY, JSON.stringify(data)); } catch (e) {}
+    },
+
+    restore() {
+        try {
+            const data = JSON.parse(localStorage.getItem(this.KEY));
+            if (!data) return;
+            const els = [...document.querySelectorAll(this.editables)];
+            if (els.length === data.length) els.forEach((el, i) => el.innerHTML = data[i]);
+        } catch (e) {}
+    },
+
+    download() {
+        this.save();
+        const clone = document.documentElement.cloneNode(true);
+        clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+        clone.querySelector('body').classList.remove('editing');
+        const blob = new Blob(['<!DOCTYPE html>\n' + clone.outerHTML], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'founder-note-mumbai-edited.html';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+};
+editor.restore();
+
+document.getElementById('editToggle').addEventListener('click', () => editor.toggleEditMode());
+
+const hotzone = document.querySelector('.edit-hotzone');
+const editToggle = document.getElementById('editToggle');
+let hideTimeout = null;
+hotzone.addEventListener('mouseenter', () => { clearTimeout(hideTimeout); editToggle.classList.add('show'); });
+hotzone.addEventListener('mouseleave', () => {
+    hideTimeout = setTimeout(() => { if (!editor.isActive) editToggle.classList.remove('show'); }, 400);
+});
+editToggle.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+editToggle.addEventListener('mouseleave', () => {
+    hideTimeout = setTimeout(() => { if (!editor.isActive) editToggle.classList.remove('show'); }, 400);
+});
+hotzone.addEventListener('click', () => editor.toggleEditMode());
+
+document.addEventListener('keydown', (e) => {
+    if ((e.key === 'e' || e.key === 'E') && !(e.target.getAttribute && e.target.getAttribute('contenteditable') === 'true')) {
+        editor.toggleEditMode();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); editor.download(); }
+});
+document.addEventListener('input', (e) => { if (editor.isActive) editor.save(); });
+</script>
+</body>
+</html>
